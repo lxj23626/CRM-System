@@ -1,0 +1,41 @@
+{% extends 'index.html' %}
+{% block title %}学员注册{% endblock %}
+
+
+{% block main %}
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <h1>学员报名页</h1>
+
+        <form method="post" novalidate style="margin-top: 10px">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="col-sm-2 control-label">客户:</label>
+                <div class="col-sm-10">
+                    <select name="customer_id" class="form-control">
+                        {% for customer in customers %}
+                             <option value="{{ customer.id }}">{{ customer }}</option>
+                        {% endfor %}
+                   </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="inputPassword3" class="col-sm-2 control-label" style="margin-top: 40px">报名班级:</label>
+                <div class="col-sm-10" style="margin-top: 30px">
+                     <select name="class_grade_id" class="form-control">
+                        {% for class_grade in class_lists %}
+                             <option value="{{ class_grade.id }}">{{ class_grade }}</option>
+                        {% endfor %}
+                   </select>
+                </div>
+            </div>
+
+            <input type="submit" class="btn btn-success pull-right" style="margin-top: 20px; margin-right: 15px" value="下一步" >
+        </form>
+
+        {% if enrollment_link %}
+            <p>请将此报名链接复制并发送给客户填写{{ enrollment_link }}</p>
+        {% endif %}
+
+    </div>
+{% endblock %}

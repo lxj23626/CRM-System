@@ -1,0 +1,123 @@
+{% extends 'index.html' %}
+{% load tags %}
+
+{% block title %}添加{% endblock %}
+
+{% block main %}
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <ol class="breadcrumb">
+          <li><a href="/myadmin/app">App</a></li>
+          <li><a href="/myadmin/{{ app_name }}/{{ model_name }}">{% get_model_verbose_name admin_class_obj %}</a></li>
+          <li class="active">add</li>
+        </ol>
+
+        <h3 class="page-header"><label>添加</label></h3>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form_obj %}
+                <div class="form-group">
+                    <label class="col-xs-2" style="width: 11%; margin-top: 9px">{{ field.label }}:</label>
+                    <div class="col-xs-10" style="margin-bottom: 10px">
+                        {% if field.name in admin_class_obj.filter_horizontal %}
+                            <div class="col-xs-5">
+                                <input type="search" class="form-control search" placeholder="搜索">
+                                <select id="select" multiple class="form-control">
+                                    {% get_mul_select_option field.name form_obj admin_class_obj as get_mul_select_option  %}
+                                    {% for i in get_mul_select_option %}
+                                        <option value="{{ i.id }}">{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                                <a style="cursor: pointer" class="SelectAll">Choose All</a>
+
+                            </div>
+
+                            <div class="col-xs-5">
+                                <input type="search" class="form-control search" placeholder="搜索">
+                                <select id="selected" multiple class="form-control" name="{{ field.name }}">
+                                    {% get_selected_option field.name form_obj admin_class_obj as get_selected_option  %}
+                                    {% for i in get_selected_option %}
+                                        <option value="{{ i.id }}">{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                                <a style="cursor: pointer" class="SelectedAll">Remove All</a>
+
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                        <span style="color: red">{{ field.errors.0 }} </span>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="form-group">
+                <div class="col-sm-12" style="text-align: right">
+                    <button id="submit" type="text" class="btn btn-info">Save</button>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function () {
+            BindSearch();
+            BindSelect();
+            BindSelected();
+            BindSelectAll();
+            BindSelectedAll();
+            BindSubmit();
+        });
+
+        function BindSearch() {
+            $('.search').on('input propertychange', function () {   {# oninput事件 #}
+                var search_text = $(this).val().toUpperCase();
+                $(this).next().children().each(function () {
+                    if ($(this).text().toUpperCase().search(search_text) != -1) {
+                        $(this).show();
+                    }
+                    else{
+                            $(this).hide();
+                        }
+                })
+            })
+        }
+        
+        function BindSelect() {
+            $('#select').children().dblclick(function () {
+                {#console.log($(this))#}
+                $('#selected').append($(this));      {# 竟然不需要删除这一行option？！ #}
+            })
+        }
+
+        function BindSelected() {
+            $('#selected').children().dblclick(function () {
+                {#console.log($(this))#}
+                $('#select').append($(this));      {# 竟然不需要删除这一行option？！ #}
+            })
+        }
+
+        function BindSelectAll() {
+            $('.SelectAll').click(function () {
+                $('#selected').append($(this).prev().children())
+            })
+        }
+
+        function BindSelectedAll() {
+             $('.SelectedAll').click(function () {
+                $('#select').append($(this).prev().children())
+            })
+        }
+
+        function BindSubmit() {
+            $('#submit').click(function () {
+                $('#selected').children().prop('selected',true)
+
+            })
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block title %}学生报名页{% endblock %}
+
+{% block css %}
+    <link href="/static/plugins/dropzone/dropzone.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h3>学员报名</h3>
+{#        {{ customer_form.errors }}#}
+
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">学员在线报名</h3>
+            </div>
+
+            <div class="panel-body">
+                <form class="form" method="post" novalidate>
+                    {% csrf_token %}
+                    {% for field in customer_form %}
+                        <div class="form-group col-lg-6">
+                            <label class="col-sm-2  control-label">{{ field.label }}</label>
+                            <div class="col-sm-10">
+                                {{ field }}
+                                <span style="color: red;">{{ field.errors.0 }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="form-group col-lg-6">
+                        <label class="col-sm-2 control-label">报名班级</label>
+                        <div class="col-sm-10">
+                            {{ enrollment_obj.class_grade }}
+                        </div>
+                    </div>
+
+                    <div class="form-group col-lg-6">
+                        <label class="col-sm-2  control-label">学费</label>
+                        <div class="col-sm-10">
+                            {{ enrollment_obj.class_grade.course.price }}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <pre style="height: 400px;">{{ enrollment_obj.class_grade.contract_template.content }}</pre>
+
+                    <input type="checkbox" name="contract_agreed" >我已认真阅读,无条件同意
+                    <input id="submit" type="submit" class="btn btn-success" value="提交">
+                </form>
+
+                <p>已上传文件列表</p>
+                <ul id="uploaded_files">
+                    {% for file in uploaded_files %}
+                        <li>{{ file }}</li>
+                    {% endfor %}
+                </ul>
+
+                <form id="myAwesomeDropzone" action="{% url 'enrollment_fileupload' enrollment_obj.id %}" class="dropzone">
+                    <div class="fallback">
+                        <input name="file" type="file" multiple />
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="/static/plugins/dropzone/dropzone.js"></script>
+
+    <script>
+        {#Dropzone.options.myAwesomeDropzone = {#}
+        {#    paramName: "file",  // 传给后端的参数名#}
+        {#    maxFilesize: 2,     // MB#}
+        {#    maxFiles: 2,#}
+        {#    parallelUploads: 1, // 并发数#}
+        {#    dictDefaultMessage:'请上传文件，文件数不超过2个，文件大小不超过2MB',#}
+        {#    addRemoveLinks : true,#}
+            {#accept: function(file, done) {#}
+            {#    if (file.name == "justinbieber.jpg") {#}
+            {#        done("Naha, you don't.");#}
+            {#    }#}
+            {#    else { done(); }#}
+            {# }#}
+        {# };#}
+
+
+        {#$(function() {#}
+        {#    // 从后端接收数据#}
+        {#    Dropzone.options.myAwesomeDropzone = false;   // 阻止发现Dropzone插件#}
+        {#    var myDropzone = new Dropzone("#myAwesomeDropzone");#}
+            {#myDropzone = $('#myAwesomeDropzone')#}
+        {#    myDropzone.on("success", function(file, response) {#}
+                {#console.log("complete", file, response);#}
+        {#        var response = JSON.parse(response);#}
+        {#        if (!response.status){#}
+        {#            alert(response.err_msg);#}
+        {#        }else {#}
+        {#             $("#uploaded_files").append("<li>"+ file.name +"</li>");#}
+        {#        }#}
+        {#    });#}
+        {# })#}
+
+        Dropzone.options.myAwesomeDropzone = false;
+        $("#myAwesomeDropzone").dropzone({
+            {#url: "{% url 'enrollment_fileupload' enrollment_obj.id %}",#}
+            addRemoveLinks: true,
+            dictRemoveLinks: "x1",
+            dictCancelUpload: "x2",
+            maxFiles: 2,
+            maxFilesize: 1,
+            dictDefaultMessage:'请上传文件，文件数不超过2个，文件大小不超过2MB',
+            {#acceptedFiles: ".js",#}
+            init: function() {
+                this.on("success", function(file, response) {
+                    var response = JSON.parse(response);
+                    if (!response.status){
+                        alert(response.err_msg);
+                    }else {
+                         $("#uploaded_files").append("<li>"+ file.name +"</li>");
+                    }
+                });
+            }
+         });
+
+        {#$("#dropz").dropzone({#}
+        {#    init: function() {#}
+        {#        this.on("addedfile", function(file) {#}
+        {#            // actions...#}
+        {#        });#}
+        {#    }#}
+        {# });#}
+
+        $(function () {
+            BindSubmit();
+        });
+
+        function BindSubmit() {
+            $('#submit').click(function () {
+                if ($("#uploaded_files").children().length ==0){
+                    alert("请上传证件信息!");
+                    return false
+                }
+
+                if (!$("input[name='contract_agreed']").prop("checked")){
+                    alert("必须勾选不退费协议!");
+                    return false
+                }
+            })
+        }
+
+    </script>
+{% endblock %}

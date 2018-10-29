@@ -1,0 +1,131 @@
+{% extends 'index.html' %}
+{% load tags %}
+{% block title %}model data{% endblock %}
+
+{% block main %}
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <ol class="breadcrumb">
+          <li><a href="/myadmin/app">App</a></li>
+          <li class="active">{% get_model_verbose_name admin_class_obj %}</li>
+        </ol>
+
+        <div class="row">
+            <div class="col-xs-6" style="display: inline-block;">
+                <h1 class="page-header">
+                    <label>ModelName:</label>
+                    <span style="margin-left: 15px">{{ model_name }}</span>
+                </h1>
+            </div>
+            <div class="col-xs-6" style="text-align: right;">
+                <a href="add/" target="_blank">
+                    <button class="btn btn-md btn-primary" type="submit" style="margin-bottom: -26px">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i> 创建
+                    </button>
+                </a>
+            </div>
+        </div>
+
+        {# 搜索功能 #}
+        {% if admin_class_obj.search_fields %}
+            <div style="border: 1px #dddddd; border-left: 3px solid #337ab7;">
+                <div style="margin-left: 15px">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+
+                    <form style="display: inline-block; margin-left: 5px;">
+                        <input style="display: inline-block; width: 70%" class="form-control" placeholder="搜索" type="text" name="_search" value={{ admin_class_obj.search_data }}>
+                        <input style="margin-left: 5px" class="btn btn-success" type="submit" value="search">
+
+                        {# 筛选条件隐藏输入框 #}
+                        {% if admin_class_obj.filter_data_dict %}
+                            {% for k,v in admin_class_obj.filter_data_dict.items %}
+                                <input type="hidden" name={{ k }} value={{ v }}>
+                            {% endfor %}
+                        {% endif %}
+
+                        {# 排序隐藏输入框 #}
+                        {% if admin_class_obj.current_ordered_dict %}
+                            {% for k,v in admin_class_obj.current_ordered_dict.items %}
+                                <input type="hidden" name='_order' value={{ v }}>
+                            {% endfor %}
+                        {% endif %}
+                    </form>
+                    <span style="margin-left: 15px">
+                        搜索条件：【
+                        {% for i in admin_class_obj.search_fields %}
+                            {{ i }}，
+                        {% endfor %}
+                        】
+                    </span>
+                </div>
+            </div>
+        {% endif %}
+        <br>
+
+        {# 筛选过滤功能 #}
+        {% if admin_class_obj.list_filter %}
+            <div style="border: 1px #dddddd; border-left: 3px solid #337ab7;">
+                <div style="margin-left: 15px">
+                    <form style="display: inline-flex; width: 100%">
+                        <i class="fa fa-filter" aria-hidden="true" style="margin-right: 10px; margin-top: 4px"></i>
+
+                        {% for list_filter_str in admin_class_obj.list_filter %}
+                            <label style="margin-right: 5px">{{ list_filter_str }}:</label>
+                            {% if list_filter_str != 'date' %}
+                                <select class='form-control' name="{{ list_filter_str }}" style="margin-right: 10px; margin-top: -7px">
+                                    {% get_filter_item admin_class_obj list_filter_str %}
+                                </select>
+                            {% else %}
+                                <select class='form-control' name="date__gte" style="margin-right: 10px; margin-top: -7px">
+                                    {% get_filter_item admin_class_obj list_filter_str %}
+                                </select>
+                            {% endif %}
+                        {% endfor %}
+
+                        {# 搜索隐藏输入框 #}
+                        <input type="hidden" name="_search" value={{ admin_class_obj.search_data }}>
+
+                        {# 排序隐藏输入框 #}
+                        {% if admin_class_obj.current_ordered_dict %}
+                            {% for k,v in admin_class_obj.current_ordered_dict.items %}
+                                <input type="hidden" name='_order' value={{ v }}>
+                            {% endfor %}
+                        {% endif %}
+
+                        <input style="margin-left: 5px; margin-top: -7px" class="btn btn-success" type="submit" value="过滤">
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+        <br>
+
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            {% if not admin_class_obj.list_display %}
+              <th><a>{{ model_name }}</a></th>
+            {% else %}
+              {% order_title admin_class_obj %}
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for data in data_list %}
+            <tr>
+                {% get_item admin_class_obj data %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+        <div style="border: 1px #dddddd; border-left: 3px solid #337ab7;">
+            <h4 style="margin-left: 15px">找到 <a>{{ data_num }}</a> 条符合条件的内容</h4>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                {% page_handle admin_class_obj data_list  %}
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

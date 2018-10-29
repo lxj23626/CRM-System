@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load tags %}
+{% block title %}删除{% endblock %}
+
+{% block body %}
+    <h2 class="page-header" style="margin-left: 10px">{{ model_name }}</h2>
+    <h4 class="page-header alert-danger" style="padding: 10px; margin-top: -10px">注意:以下与【{{ obj }}】相关联的数据都将被删除!</h4>
+
+    <div>
+        {% display_all_related_objs obj %}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+            <div class="col-xs-2">
+                <input type="submit" class="btn btn-danger" value="确认删除">
+            </div>
+            <a class="btn btn-info" href="{% url 'change_page' app_name model_name obj.id %}">返回</a>
+    </form>
+
+
+{% endblock %}

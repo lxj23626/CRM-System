@@ -1,0 +1,6 @@
+- 重写django账户管理
+- 模仿django的admin重写网页增删改查方式
+- 实现在页面上对数据库里的数据的搜索，条件筛选，排序功能
+- 用ModelForm根据Model动态生成Form表单
+- Dropzone实现上传图片
+- django权限管理
